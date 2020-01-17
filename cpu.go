@@ -5,8 +5,9 @@ import (
 )
 
 type Memory struct {
-	stack  [16]uint16
 	memory [4096]byte
+	stack  [16]uint16
+	sp     byte
 }
 
 type Cpu struct {
@@ -29,8 +30,8 @@ func NewCpu(rom []byte) *Cpu {
 }
 
 func (cpu *Cpu) Step() {
-	opcode := uint16(cpu.memory.memory[cpu.PC])<<8 | uint16(cpu.memory.memory[cpu.PC+1])
-	instruction := opcode & 0xF000
+	opcode := combine_two_bytes(cpu.memory.memory[cpu.PC], cpu.memory.memory[cpu.PC+1])
+	instruction := get_high_nibble(opcode)
 
 	log.Printf("CPU opcode is 0x%x (%b) (%d)\n", opcode, opcode, opcode)
 	log.Printf("\tDecoded instruction: 0x%x (%b) (%d)\n", instruction, instruction, instruction)
@@ -49,20 +50,26 @@ func (cpu *Cpu) Step() {
 	case 0x5000:
 		log.Printf("\tSE instruction\n")
 	case 0x6000:
-		arg2 := get_low_byte(opcode)
-		log.Printf("\tLD instruction %d\n", arg2)
+		x := get_x(opcode)
+		lb := get_low_byte(opcode)
+		cpu.V[x] = lb
+		log.Printf("\tLD instruction %d %d\n", x, lb)
 	case 0x7000:
 		log.Printf("\tADD instruction\n")
 	case 0x8000:
 		break
 	case 0xa000:
-		log.Printf("\tLD instruction\n")
+		cpu.I = get_nnn(opcode)
+		log.Printf("\tLD instruction I %d\n", cpu.I)
 	case 0xb000:
 		break
 	case 0xc000:
 		break
 	case 0xd000:
-		log.Printf("\tDRW instruction\n")
+		x := get_x(opcode)
+		y := get_y(opcode)
+		nibble := get_nibble(opcode)
+		log.Printf("\tDRW instruction %d %d %d\n", x, y, nibble)
 	case 0xe000:
 		break
 	case 0xf000:
