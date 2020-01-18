@@ -36,8 +36,8 @@ func (cpu *Cpu) Step(debug bool) {
 	instruction := get_high_nibble(opcode)
 
 	if debug {
-		log.Printf("CPU opcode is 0x%x (%b) (%d)\n", opcode, opcode, opcode)
-		log.Printf("\tDecoded instruction: 0x%x (%b) (%d)\n", instruction, instruction, instruction)
+		log.Printf("CPU opcode is 0x%x (b%b)\n", opcode, opcode)
+		log.Printf("\tDecoded instruction: 0x%x (b%b)\n", instruction, instruction)
 		log.Printf("\tPC: 0x%x (%d)\n", cpu.PC, cpu.PC)
 	}
 
@@ -51,20 +51,20 @@ func (cpu *Cpu) Step(debug bool) {
 			skip_pc = true
 			cpu.PC = cpu.memory.stack[cpu.memory.sp]
 			cpu.memory.sp--
-			log.Printf("RET to 0x%x\n", cpu.PC)
+			log.Printf("RET to 0x%x (%d)\n", cpu.PC, cpu.PC)
 		}
 	case 0x1:
 		skip_pc = true
 		addr := get_nnn(opcode)
 		cpu.PC = addr
-		log.Printf("\tJMP to 0x%x\n", addr)
+		log.Printf("\tJMP to 0x%x (%d)\n", addr, addr)
 	case 0x2:
 		skip_pc = true
 		addr := get_nnn(opcode)
 		cpu.memory.sp++
 		cpu.memory.stack[cpu.memory.sp] = cpu.PC + 2
 		cpu.PC = addr
-		log.Printf("\tCALL 0x%x\n", addr)
+		log.Printf("\tCALL 0x%x (%d)\n", addr, addr)
 	case 0x3:
 		x := get_x(opcode)
 		b := get_low_byte(opcode)
@@ -72,7 +72,7 @@ func (cpu *Cpu) Step(debug bool) {
 			skip_pc = true
 			cpu.PC += 2
 		}
-		log.Printf("\tSE 0x%x 0x%x (%d) 0x%x (%d)\n", x, cpu.V[x], cpu.V[x], b, b)
+		log.Printf("\tSEQ reg:0x%x (%d) 0x%x (%d) 0x%x (%d)\n", x, x, cpu.V[x], cpu.V[x], b, b)
 	case 0x4:
 		x := get_x(opcode)
 		b := get_low_byte(opcode)
@@ -103,13 +103,25 @@ func (cpu *Cpu) Step(debug bool) {
 		sub_instruction := get_nibble(opcode)
 		switch sub_instruction {
 		case 0x0:
-			log.Printf("\tLD UNIMPLEMENTED\n")
+			x := get_x(opcode)
+			y := get_y(opcode)
+			cpu.V[x] = cpu.V[y]
+			log.Printf("\tLD\n")
 		case 0x1:
-			log.Printf("\tOR UNIMPLEMENTED\n")
+			x := get_x(opcode)
+			y := get_y(opcode)
+			cpu.V[x] = cpu.V[x] | cpu.V[y]
+			log.Printf("\tOR\n")
 		case 0x2:
-			log.Printf("\tAND UNIMPLEMENTED\n")
+			x := get_x(opcode)
+			y := get_y(opcode)
+			cpu.V[x] = cpu.V[x] & cpu.V[y]
+			log.Printf("\tAND\n")
 		case 0x3:
-			log.Printf("\tXOR UNIMPLEMENTED\n")
+			x := get_x(opcode)
+			y := get_y(opcode)
+			cpu.V[x] = cpu.V[x] ^ cpu.V[y]
+			log.Printf("\tXOR\n")
 		case 0x4:
 			log.Printf("\tADD UNIMPLEMENTED\n")
 		case 0x5:
