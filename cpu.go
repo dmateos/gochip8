@@ -66,11 +66,29 @@ func (cpu *Cpu) Step(debug bool) {
 		cpu.PC = addr
 		log.Printf("\tCALL 0x%x\n", addr)
 	case 0x3:
-		log.Printf("\tSE UNIMPLEMENTED\n")
+		x := get_x(opcode)
+		b := get_low_byte(opcode)
+		if cpu.V[x] == b {
+			skip_pc = true
+			cpu.PC += 2
+		}
+		log.Printf("\tSE 0x%x 0x%x (%d) 0x%x (%d)\n", x, cpu.V[x], cpu.V[x], b, b)
 	case 0x4:
-		log.Printf("\tSNE UNIMPLEMENTED\n")
+		x := get_x(opcode)
+		b := get_low_byte(opcode)
+		if cpu.V[x] != b {
+			skip_pc = true
+			cpu.PC += 2
+		}
+		log.Printf("\tSNE 0x%x 0x%x (%d) 0x%x (%d)\n", x, cpu.V[x], cpu.V[x], b, b)
 	case 0x5:
-		log.Printf("\tSE UNIMPLEMENTED\n")
+		x := get_x(opcode)
+		y := get_y(opcode)
+		if x == y {
+			skip_pc = true
+			cpu.PC += 2
+		}
+		log.Printf("\tSE 0x%x (%d) 0x%x (%d)\n", x, x, y, y)
 	case 0x6:
 		x := get_x(opcode)
 		lb := get_low_byte(opcode)
@@ -104,7 +122,7 @@ func (cpu *Cpu) Step(debug bool) {
 		log.Printf("\tSNE UNIMPLEMENTED\n")
 	case 0xA:
 		cpu.I = get_nnn(opcode)
-		log.Printf("\tLD I %d UNIMPLEMENTED\n", cpu.I)
+		log.Printf("\tLD I %d\n", cpu.I)
 	case 0xB:
 		log.Printf("\tJP UNIMPLEMENTED\n")
 		break
