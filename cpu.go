@@ -61,7 +61,7 @@ func (cpu *Cpu) Step(debug bool) {
 	case 0x2:
 		skip_pc = true
 		addr := get_nnn(opcode)
-		cpu.memory.sp += 1
+		cpu.memory.sp++
 		cpu.memory.stack[cpu.memory.sp] = cpu.PC + 2
 		cpu.PC = addr
 		log.Printf("\tCALL 0x%x\n", addr)
@@ -95,7 +95,10 @@ func (cpu *Cpu) Step(debug bool) {
 		cpu.V[x] = lb
 		log.Printf("\tLD %d %d\n", x, lb)
 	case 0x7:
-		log.Printf("\tADD UNIMPLEMENTED\n")
+		x := get_x(opcode)
+		lb := get_low_byte(opcode)
+		cpu.V[x] += lb
+		log.Printf("\tADD 0x%x (%d) 0x%x (%d)\n", x, x, lb, lb)
 	case 0x8:
 		sub_instruction := get_nibble(opcode)
 		switch sub_instruction {
