@@ -27,5 +27,5 @@ func get_low_byte(opcode uint16) byte {
 }
 
 func get_high_nibble(opcode uint16) uint16 {
-	return opcode & 0xF000
+	return (opcode & 0xF000) >> 12
 }
