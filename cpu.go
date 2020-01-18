@@ -39,57 +39,89 @@ func (cpu *Cpu) Step(debug bool) {
 	}
 
 	switch instruction {
-	case 0x00:
-		log.Fatal("\tUNIMP\n")
-		break
+	case 0x0:
+		switch sub_instruction := get_low_byte(opcode); sub_instruction {
+		case 0xE0:
+			log.Printf("\tCLS UNIMPLEMENTED\n")
+		case 0xEE:
+			cpu.PC = cpu.memory.stack[cpu.memory.sp]
+			cpu.memory.sp--
+			log.Printf("RET to 0x%x\n", cpu.PC)
+		}
 	case 0x1:
-		log.Printf("\tJMP\n")
+		addr := get_nnn(opcode)
+		cpu.PC = addr
+		log.Printf("\tJMP to 0x%x\n", addr)
 	case 0x2:
 		addr := get_nnn(opcode)
 		cpu.memory.sp += 1
 		cpu.memory.stack[cpu.memory.sp] = cpu.PC
 		cpu.PC = addr
-		log.Printf("\tCAL %d\n", addr)
+		log.Printf("\tCALL 0x%x\n", addr)
 	case 0x3:
-		log.Printf("\tSE\n")
+		log.Printf("\tSE UNIMPLEMENTED\n")
 	case 0x4:
-		log.Printf("\tSNE\n")
+		log.Printf("\tSNE UNIMPLEMENTED\n")
 	case 0x5:
-		log.Printf("\tSE\n")
+		log.Printf("\tSE UNIMPLEMENTED\n")
 	case 0x6:
 		x := get_x(opcode)
 		lb := get_low_byte(opcode)
 		cpu.V[x] = lb
 		log.Printf("\tLD %d %d\n", x, lb)
 	case 0x7:
-		log.Printf("\tADD\n")
+		log.Printf("\tADD UNIMPLEMENTED\n")
 	case 0x8:
+		switch sub_instruction := get_nibble(opcode); sub_instruction {
+		case 0x1:
+			break
+		case 0x2:
+			break
+		case 0x3:
+			break
+		case 0x4:
+			break
+		case 0x5:
+			break
+		case 0x6:
+			break
+		case 0x7:
+			break
+		case 0xE:
+			break
+		}
+	case 0x9:
 		break
-	case 0xa:
+	case 0xA:
 		cpu.I = get_nnn(opcode)
-		log.Printf("\tLD I %d\n", cpu.I)
-	case 0xb:
-		log.Fatal("\tUNIMP\n")
+		log.Printf("\tLD I %d UNIMPLEMENTED\n", cpu.I)
+	case 0xB:
+		log.Fatal("\tJP UNIMPLEMENTED\n")
 		break
-	case 0xc:
-		log.Fatal("\tUNIMP\n")
+	case 0xC:
+		log.Fatal("\tRND UNIMPLEMENTED\n")
 		break
-	case 0xd:
+	case 0xD:
 		x := get_x(opcode)
 		y := get_y(opcode)
 		nibble := get_nibble(opcode)
-		/* TODO DRAW */
-		log.Printf("\tDRW %d %d %d\n", x, y, nibble)
-	case 0xe:
+		log.Printf("\tDRW %d %d %d UNIMPLEMENTED\n", x, y, nibble)
+	case 0xE:
 		log.Fatal("\tUNIMP\n")
-		break
-	case 0xf:
+		sub_instruction := get_low_byte(opcode)
+		switch sub_instruction {
+		case 0x9E:
+			break
+		case 0xA1:
+			break
+		}
+	case 0xF:
 		sub_instruction := get_low_byte(opcode)
 		log.Printf("\tLD (0x%x)\n", sub_instruction)
 		switch sub_instruction {
 		case 0x07:
 			break
-		case 0x0a:
+		case 0x0A:
 			break
 		case 0x15:
 			break

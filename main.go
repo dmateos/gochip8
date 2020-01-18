@@ -18,8 +18,9 @@ func main() {
 	fmt.Println(cpu)
 	fmt.Println(cpu.memory)
 
-	for i := 0; i < 16; i++ {
+	for {
 		cpu.Step(false)
+		fmt.Scanln()
 	}
 
 	fmt.Println(cpu)
