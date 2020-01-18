@@ -30,32 +30,39 @@ func NewCpu(rom []byte) *Cpu {
 }
 
 func (cpu *Cpu) Step(debug bool) {
+	var skip_pc bool = false
+
 	opcode := combine_two_bytes(cpu.memory.memory[cpu.PC], cpu.memory.memory[cpu.PC+1])
 	instruction := get_high_nibble(opcode)
 
 	if debug {
 		log.Printf("CPU opcode is 0x%x (%b) (%d)\n", opcode, opcode, opcode)
 		log.Printf("\tDecoded instruction: 0x%x (%b) (%d)\n", instruction, instruction, instruction)
+		log.Printf("\tPC: 0x%x (%d)\n", cpu.PC, cpu.PC)
 	}
 
 	switch instruction {
 	case 0x0:
-		switch sub_instruction := get_low_byte(opcode); sub_instruction {
+		sub_instruction := get_low_byte(opcode)
+		switch sub_instruction {
 		case 0xE0:
 			log.Printf("\tCLS UNIMPLEMENTED\n")
 		case 0xEE:
+			skip_pc = true
 			cpu.PC = cpu.memory.stack[cpu.memory.sp]
 			cpu.memory.sp--
 			log.Printf("RET to 0x%x\n", cpu.PC)
 		}
 	case 0x1:
+		skip_pc = true
 		addr := get_nnn(opcode)
 		cpu.PC = addr
 		log.Printf("\tJMP to 0x%x\n", addr)
 	case 0x2:
+		skip_pc = true
 		addr := get_nnn(opcode)
 		cpu.memory.sp += 1
-		cpu.memory.stack[cpu.memory.sp] = cpu.PC
+		cpu.memory.stack[cpu.memory.sp] = cpu.PC + 2
 		cpu.PC = addr
 		log.Printf("\tCALL 0x%x\n", addr)
 	case 0x3:
@@ -72,34 +79,37 @@ func (cpu *Cpu) Step(debug bool) {
 	case 0x7:
 		log.Printf("\tADD UNIMPLEMENTED\n")
 	case 0x8:
-		switch sub_instruction := get_nibble(opcode); sub_instruction {
+		sub_instruction := get_nibble(opcode)
+		switch sub_instruction {
+		case 0x0:
+			log.Printf("\tLD UNIMPLEMENTED\n")
 		case 0x1:
-			break
+			log.Printf("\tOR UNIMPLEMENTED\n")
 		case 0x2:
-			break
+			log.Printf("\tAND UNIMPLEMENTED\n")
 		case 0x3:
-			break
+			log.Printf("\tXOR UNIMPLEMENTED\n")
 		case 0x4:
-			break
+			log.Printf("\tADD UNIMPLEMENTED\n")
 		case 0x5:
-			break
+			log.Printf("\tSUB UNIMPLEMENTED\n")
 		case 0x6:
-			break
+			log.Printf("\tSHR UNIMPLEMENTED\n")
 		case 0x7:
-			break
+			log.Printf("\tSUBN UNIMPLEMENTED\n")
 		case 0xE:
-			break
+			log.Printf("\tSHL UNIMPLEMENTED\n")
 		}
 	case 0x9:
-		break
+		log.Printf("\tSNE UNIMPLEMENTED\n")
 	case 0xA:
 		cpu.I = get_nnn(opcode)
 		log.Printf("\tLD I %d UNIMPLEMENTED\n", cpu.I)
 	case 0xB:
-		log.Fatal("\tJP UNIMPLEMENTED\n")
+		log.Printf("\tJP UNIMPLEMENTED\n")
 		break
 	case 0xC:
-		log.Fatal("\tRND UNIMPLEMENTED\n")
+		log.Printf("\tRND UNIMPLEMENTED\n")
 		break
 	case 0xD:
 		x := get_x(opcode)
@@ -107,40 +117,42 @@ func (cpu *Cpu) Step(debug bool) {
 		nibble := get_nibble(opcode)
 		log.Printf("\tDRW %d %d %d UNIMPLEMENTED\n", x, y, nibble)
 	case 0xE:
-		log.Fatal("\tUNIMP\n")
+		log.Printf("\tUNIMP\n")
 		sub_instruction := get_low_byte(opcode)
 		switch sub_instruction {
 		case 0x9E:
-			break
+			log.Printf("\tSKIP UNIMPLEMENTED\n")
 		case 0xA1:
-			break
+			log.Printf("\tNSKIP UNIMPLEMENTED\n")
 		}
 	case 0xF:
 		sub_instruction := get_low_byte(opcode)
-		log.Printf("\tLD (0x%x)\n", sub_instruction)
 		switch sub_instruction {
 		case 0x07:
-			break
+			log.Printf("\tLD UNIMPLEMENTED\n")
 		case 0x0A:
-			break
+			log.Printf("\tLD UNIMPLEMENTED\n")
 		case 0x15:
-			break
+			log.Printf("\tLD UNIMPLEMENTED\n")
 		case 0x18:
-			break
-		case 0x1e:
-			break
+			log.Printf("\tLD UNIMPLEMENTED\n")
+		case 0x1E:
+			log.Printf("\tADD UNIMPLEMENTED\n")
 		case 0x29:
-			break
+			log.Printf("\tLD UNIMPLEMENTED\n")
 		case 0x33:
-			break
+			log.Printf("\tLD UNIMPLEMENTED\n")
 		case 0x55:
-			break
+			log.Printf("\tLD UNIMPLEMENTED\n")
 		case 0x65:
-			break
+			log.Printf("\tLD UNIMPLEMENTED\n")
 		}
 	default:
 		log.Fatal("\tUNIMP\n")
 		return
 	}
-	cpu.PC += 2
+
+	if !skip_pc {
+		cpu.PC += 2
+	}
 }

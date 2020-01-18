@@ -19,7 +19,7 @@ func main() {
 	fmt.Println(cpu.memory)
 
 	for {
-		cpu.Step(false)
+		cpu.Step(true)
 		fmt.Scanln()
 	}
 
