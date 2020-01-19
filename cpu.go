@@ -146,6 +146,7 @@ func (cpu *Cpu) Step(debug bool) {
 		log.Printf("\tLD I %d\n", cpu.I)
 	case 0xB:
 		addr := get_nnn(opcode)
+		skip_pc = true
 		cpu.PC += addr + uint16(cpu.V[0])
 		log.Printf("JMP 0x%x (%d) + (%d)\n", addr, addr, cpu.V[0])
 	case 0xC:
