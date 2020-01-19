@@ -38,7 +38,7 @@ func (cpu *Cpu) Step(debug bool) {
 	if debug {
 		log.Printf("CPU opcode is 0x%x (b%b)\n", opcode, opcode)
 		log.Printf("\tDecoded instruction: 0x%x (b%b)\n", instruction, instruction)
-		log.Printf("\tPC: 0x%x (%d)\n", cpu.PC, cpu.PC)
+		log.Printf("\tPC: 0x%x (%d), SP: %d\n", cpu.PC, cpu.PC, cpu.memory.sp)
 	}
 
 	switch instruction {
@@ -134,23 +134,29 @@ func (cpu *Cpu) Step(debug bool) {
 			log.Printf("\tSHL UNIMPLEMENTED\n")
 		}
 	case 0x9:
-		log.Printf("\tSNE UNIMPLEMENTED\n")
+		x := get_x(opcode)
+		y := get_y(opcode)
+		if x != y {
+			skip_pc = true
+			cpu.PC += 2
+		}
+		log.Printf("\tSNE 0x%x (%d) 0x%x (%d)\n", x, x, y, y)
 	case 0xA:
 		cpu.I = get_nnn(opcode)
 		log.Printf("\tLD I %d\n", cpu.I)
 	case 0xB:
-		log.Printf("\tJP UNIMPLEMENTED\n")
-		break
+		addr := get_nnn(opcode)
+		cpu.PC += addr + uint16(cpu.V[0])
+		log.Printf("JMP 0x%x (%d) + (%d)\n", addr, addr, cpu.V[0])
 	case 0xC:
+		//kk := get_low_byte(opcode)
 		log.Printf("\tRND UNIMPLEMENTED\n")
-		break
 	case 0xD:
 		x := get_x(opcode)
 		y := get_y(opcode)
 		nibble := get_nibble(opcode)
 		log.Printf("\tDRW %d %d %d UNIMPLEMENTED\n", x, y, nibble)
 	case 0xE:
-		log.Printf("\tUNIMP\n")
 		sub_instruction := get_low_byte(opcode)
 		switch sub_instruction {
 		case 0x9E:
