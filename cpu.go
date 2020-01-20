@@ -14,6 +14,7 @@ type Cpu struct {
 	V      [16]byte
 	I      uint16
 	PC     uint16
+	DT, ST byte
 	memory *Memory
 }
 
@@ -169,13 +170,19 @@ func (cpu *Cpu) Step(debug bool) {
 		sub_instruction := get_low_byte(opcode)
 		switch sub_instruction {
 		case 0x07:
-			log.Printf("\tLD UNIMPLEMENTED\n")
+			x := get_x(opcode)
+			cpu.V[x] = cpu.DT
+			log.Printf("\tLD DT %0x%x (%d) %d\n", x, x, cpu.DT)
 		case 0x0A:
 			log.Printf("\tLD UNIMPLEMENTED\n")
 		case 0x15:
-			log.Printf("\tLD UNIMPLEMENTED\n")
+			x := get_x(opcode)
+			cpu.DT = cpu.V[x]
+			log.Printf("\tLD %0x%x (%d) %d DT\n", x, x, cpu.DT)
 		case 0x18:
-			log.Printf("\tLD UNIMPLEMENTED\n")
+			x := get_x(opcode)
+			cpu.ST = cpu.V[x]
+			log.Printf("\tLD %0x%x (%d) %d ST\n", x, x, cpu.DT)
 		case 0x1E:
 			log.Printf("\tADD UNIMPLEMENTED\n")
 		case 0x29:
@@ -194,5 +201,13 @@ func (cpu *Cpu) Step(debug bool) {
 
 	if !skip_pc {
 		cpu.PC += 2
+	}
+
+	if cpu.DT != 0 {
+		cpu.DT--
+	}
+
+	if cpu.ST != 0 {
+		cpu.ST--
 	}
 }
