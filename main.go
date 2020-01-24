@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 )
 
 func init_video() *sdl.Window {
@@ -30,7 +31,7 @@ func get_byte() byte {
 }
 
 func display_byte(x, y int32, window *sdl.Window) {
-	rect := sdl.Rect{x, y, 10, 10}
+	rect := sdl.Rect{x * 10, y * 10, 10, 10}
 
 	surface, err := window.GetSurface()
 	if err != nil {
@@ -55,8 +56,6 @@ func main() {
 	fmt.Println(cpu)
 	fmt.Println(cpu.memory)
 
-	display_byte(50, 50, window)
-
 	for {
 		cpu.Step(true, get_byte)
 
@@ -66,7 +65,7 @@ func main() {
 				return
 			}
 		}
+		time.Sleep(1 * time.Second)
 	}
-
 	fmt.Println(cpu)
 }

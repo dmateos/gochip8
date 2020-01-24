@@ -174,7 +174,10 @@ func (cpu *Cpu) Step(debug bool, input func() byte) {
 			cpu.V[x] = cpu.DT
 			log.Printf("\tLD DT %0x%x (%d) %d\n", x, x, cpu.DT)
 		case 0x0A:
-			log.Printf("\tLD 0xA UNIMPLEMENTED\n")
+			x := get_x(opcode)
+			key := input()
+			cpu.V[x] = key
+			log.Printf("\tLD 0xA\n")
 		case 0x15:
 			x := get_x(opcode)
 			cpu.DT = cpu.V[x]
