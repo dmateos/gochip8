@@ -1,26 +1,44 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/veandco/go-sdl2/sdl"
 	"io/ioutil"
 	"log"
+	"os"
 )
 
-func init_video() {
-	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
-		log.Fatal(err)
-	}
-	defer sdl.Quit()
-
-	window, err := sdl.CreateWindow(
-		"Chip8", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, 800, 600, sdl.WINDOW_SHOWN,
-	)
+func init_video() *sdl.Window {
+	err := sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer window.Destroy()
 
+	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, 64*10, 32*10, sdl.WINDOW_SHOWN)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return window
+}
+
+func get_byte() byte {
+	reader := bufio.NewReader(os.Stdin)
+	text, _ := reader.ReadByte()
+	return text
+}
+
+func display_byte(x, y int32, window *sdl.Window) {
+	rect := sdl.Rect{x, y, 10, 10}
+
+	surface, err := window.GetSurface()
+	if err != nil {
+		panic(err)
+	}
+
+	surface.FillRect(&rect, 0xFFFF0000)
+	window.UpdateSurface()
 }
 
 func main() {
@@ -30,14 +48,24 @@ func main() {
 	}
 
 	cpu := NewCpu(program_data)
+	window := init_video()
+	defer window.Destroy()
 
 	fmt.Println(program_data)
 	fmt.Println(cpu)
 	fmt.Println(cpu.memory)
 
+	display_byte(50, 50, window)
+
 	for {
-		cpu.Step(true)
-		fmt.Scanln()
+		cpu.Step(true, get_byte)
+
+		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+			switch event.(type) {
+			case *sdl.QuitEvent:
+				return
+			}
+		}
 	}
 
 	fmt.Println(cpu)

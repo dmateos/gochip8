@@ -30,7 +30,7 @@ func NewCpu(rom []byte) *Cpu {
 	return &cpu
 }
 
-func (cpu *Cpu) Step(debug bool) {
+func (cpu *Cpu) Step(debug bool, input func() byte) {
 	var skip_pc bool = false
 
 	opcode := combine_two_bytes(cpu.memory.memory[cpu.PC], cpu.memory.memory[cpu.PC+1])
@@ -174,7 +174,7 @@ func (cpu *Cpu) Step(debug bool) {
 			cpu.V[x] = cpu.DT
 			log.Printf("\tLD DT %0x%x (%d) %d\n", x, x, cpu.DT)
 		case 0x0A:
-			log.Printf("\tLD UNIMPLEMENTED\n")
+			log.Printf("\tLD 0xA UNIMPLEMENTED\n")
 		case 0x15:
 			x := get_x(opcode)
 			cpu.DT = cpu.V[x]
@@ -186,13 +186,13 @@ func (cpu *Cpu) Step(debug bool) {
 		case 0x1E:
 			log.Printf("\tADD UNIMPLEMENTED\n")
 		case 0x29:
-			log.Printf("\tLD UNIMPLEMENTED\n")
+			log.Printf("\tLD 0x29 UNIMPLEMENTED\n")
 		case 0x33:
-			log.Printf("\tLD UNIMPLEMENTED\n")
+			log.Printf("\tLD 0x33 UNIMPLEMENTED\n")
 		case 0x55:
-			log.Printf("\tLD UNIMPLEMENTED\n")
+			log.Printf("\tLD 0x55 UNIMPLEMENTED\n")
 		case 0x65:
-			log.Printf("\tLD UNIMPLEMENTED\n")
+			log.Printf("\tLD 0x65 UNIMPLEMENTED\n")
 		}
 	default:
 		log.Fatal("\tUNIMP\n")
